@@ -16,8 +16,13 @@ public class AuthController {
 
     private final UserService userService;
     @PostMapping("/register")
-    public ResponseDto responseDto(@RequestBody RequestDto requestDto){
+    public ResponseDto register(@RequestBody RequestDto requestDto) throws Exception{
 
         return userService.register(requestDto);
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseDto authenticate(@RequestBody RequestDto requestDto) throws Exception {
+        return  userService.authenticate(requestDto);
     }
 }

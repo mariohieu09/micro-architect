@@ -11,9 +11,11 @@ import java.util.Set;
 public enum RoleConstant {
 
     ADMIN(Set.of(
-                 "GET_USER","PUT_USER","GET_ALL_USER","DELETE_USER"
+                 "GET_USER","PUT_USER","GET_ALL_USER","DELETE_USER", "GET_PRODUCT"
             ))
-    , USER(Collections.emptySet())
+    , USER(Set.of(
+            "GET_PRODUCT"
+    ))
     ;
 
     private final Set<String> defaultPermission;

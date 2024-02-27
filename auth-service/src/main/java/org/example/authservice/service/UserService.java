@@ -7,6 +7,9 @@ import org.example.authservice.dto.ResponseDto;
 import org.example.authservice.entity.Credential;
 import org.example.authservice.entity.Role;
 import org.example.authservice.entity.User;
+import org.example.authservice.exception.BadCredentialException;
+import org.example.authservice.exception.UserNameExistedException;
+import org.example.authservice.exception.UsernameNotFoundException;
 import org.example.authservice.repository.CredentialRepository;
 import org.example.authservice.repository.RoleRepository;
 import org.example.authservice.repository.UserRepository;
@@ -14,9 +17,7 @@ import org.example.authservice.util.EncryptUtils;
 import org.example.authservice.util.JwtUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.example.authservice.constant.RoleConstant.ADMIN;
 import static org.example.authservice.constant.RoleConstant.USER;
@@ -36,8 +37,9 @@ public class UserService {
 
 
 
-    public ResponseDto register(RequestDto requestDto){
-        Role role = roleRepository.getRoleByName(ADMIN.name());
+    public ResponseDto register(RequestDto requestDto) throws Exception{
+        Optional<User> userOptional = repository.getUserByUsername(requestDto.getUsername());
+        if(userOptional.isPresent()) throw new UserNameExistedException("Username is exist!", new Date());
         User user = User
                 .builder()
                 .username(requestDto.getUsername())
@@ -50,12 +52,34 @@ public class UserService {
                         .userCredential(savedUser.getId())
                         .aesKey(requestDto.getPassword())
                 .build());
-
-
         return ResponseDto.builder()
-                .encryptData(jwtUtils.generateToken(Map.of("credential", role.getPermissionSet()), user))
+                .encryptData(jwtUtils.generateToken(user))
+                .build();
+    }
+
+    public ResponseDto authenticate(RequestDto requestDto) throws Exception {
+        Optional<User> userOptional = repository.getUserByUsername(requestDto.getUsername());
+        //Username not found!
+        if(userOptional.isEmpty()) throw new UsernameNotFoundException("Username not found!", new Date());
+        User user = userOptional.get();
+        Credential credential = credentialRepository.findById(user.getId()).get();
+        boolean isGood = passwordMatching(credential.getAesKey(), user.getPassword(), requestDto.getPassword());
+        //This exception causes when the password is not match
+        if(!isGood) throw new BadCredentialException("Bad credential", new Date());
+        return ResponseDto.builder()
+                .encryptData(jwtUtils.generateToken(user))
                 .build();
     }
 
 
+    private boolean passwordMatching(String key, String encryptedPassword, String rawPassword){
+        boolean isMatched = false;
+        if(EncryptUtils.AESDecrypt(encryptedPassword, key).equals(rawPassword)){
+            isMatched = true;
+        }
+        return isMatched;
+    }
+
+
 }
+
