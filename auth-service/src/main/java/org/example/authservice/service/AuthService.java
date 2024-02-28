@@ -1,11 +1,11 @@
 package org.example.authservice.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.example.authservice.constant.RoleConstant;
+import org.example.authservice.dto.AuthorizeRequest;
 import org.example.authservice.dto.RequestDto;
 import org.example.authservice.dto.ResponseDto;
 import org.example.authservice.entity.Credential;
-import org.example.authservice.entity.Role;
 import org.example.authservice.entity.User;
 import org.example.authservice.exception.BadCredentialException;
 import org.example.authservice.exception.UserNameExistedException;
@@ -19,12 +19,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static org.example.authservice.constant.RoleConstant.ADMIN;
 import static org.example.authservice.constant.RoleConstant.USER;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class AuthService {
 
 
     private final UserRepository repository;
@@ -80,6 +79,14 @@ public class UserService {
         return isMatched;
     }
 
+    public boolean authorizeRequest(@NonNull AuthorizeRequest request){
+        boolean isAuthorize = false;
+        List<String> permissionList = jwtUtils.extractPermission(request.getToken());
+        if(permissionList.contains(request.getCheckingPermission())){
+            isAuthorize = true;
+        }
+        return isAuthorize;
+    }
 
 }
 

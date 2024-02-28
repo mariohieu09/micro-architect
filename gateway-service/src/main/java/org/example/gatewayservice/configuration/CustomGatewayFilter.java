@@ -1,6 +1,7 @@
 package org.example.gatewayservice.configuration;
 
 
+import org.example.gatewayservice.dto.AuthorizeRequest;
 import org.example.gatewayservice.exception.ForbiddenException;
 import org.example.gatewayservice.exception.UnAuthorizeException;
 import org.example.gatewayservice.utils.JwtUtil;
@@ -8,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
@@ -23,6 +27,10 @@ public class CustomGatewayFilter implements GlobalFilter, Ordered {
     private static final String TOKEN_PREFIX = "Bearer ";
 
     private static final String HEADER_AUTHORIZATION = "Authorization";
+    @Autowired
+    private  RestTemplate restTemplate;
+
+    private static final String AUTHORIZE_URL_PATH = "http://localhost:8080/api/auth/authorize";
 
 
     @Autowired
@@ -38,7 +46,13 @@ public class CustomGatewayFilter implements GlobalFilter, Ordered {
                 List<String> permissions = jwtUtil.extractPermission(token);
                 //The specific permission to a resource endpoint
                 String definePermission = PERMISSION_CONSTANT.getPermissions().get(urlPath);
-                if(!permissions.contains(definePermission)){
+                String url = UriComponentsBuilder.fromUriString(AUTHORIZE_URL_PATH)
+                        .queryParam("token", token)
+                        .queryParam("permission", definePermission)
+                        .toUriString();
+                ResponseEntity<Boolean> responseEntity = restTemplate.getForEntity(url, Boolean.class);
+                Boolean bool = responseEntity.getBody();
+                if(Boolean.FALSE.equals(bool)){
                     throw new ForbiddenException("User has no permission to access this resource!", new Date());
                 }
             }else{

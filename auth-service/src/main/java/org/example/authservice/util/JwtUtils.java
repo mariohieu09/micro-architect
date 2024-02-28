@@ -18,6 +18,7 @@ public class JwtUtils {
     @Value("${jwt.expiration}")
     private Long EXPIRATION;
 
+    private static final String CREDENTIAL = "credential";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -69,7 +70,10 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
+    public List<String> extractPermission(String token){
+        final Claims claims = extractAllClaims(token);
+        return claims.get(CREDENTIAL, List.class);
+    }
 
     private Key getSignKey(){
         byte[] keyByte = Decoders.BASE64.decode(SECRET_KEY);
