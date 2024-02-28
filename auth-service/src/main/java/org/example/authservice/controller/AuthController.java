@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
+
     private final AuthService authService;
     @PostMapping("/register")
     public ResponseDto register(@RequestBody RequestDto requestDto) throws Exception{
@@ -25,11 +26,16 @@ public class AuthController {
     }
 
     @GetMapping("/authorize")
-    public boolean authorizeRequest(@RequestParam("token") String token, @RequestParam("permission") String permission){
+    public boolean getAuthorizeRequest(@RequestParam("token") String token, @RequestParam("permission") String permission){
         AuthorizeRequest authorizeRequest =  AuthorizeRequest.builder()
                 .token(token)
                 .checkingPermission(permission)
                 .build();
         return authService.authorizeRequest(authorizeRequest);
+    }
+
+    @PostMapping("/authorize")
+    public boolean postAuthorizeRequest(@RequestBody AuthorizeRequest request){
+        return authService.authorizeRequest(request);
     }
 }

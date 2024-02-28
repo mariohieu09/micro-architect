@@ -25,7 +25,7 @@ import static org.example.authservice.constant.RoleConstant.USER;
 @RequiredArgsConstructor
 public class AuthService {
 
-
+    //TODO Decrypt the data
     private final UserRepository repository;
 
     private final RoleRepository roleRepository;
@@ -72,11 +72,7 @@ public class AuthService {
 
 
     private boolean passwordMatching(String key, String encryptedPassword, String rawPassword){
-        boolean isMatched = false;
-        if(EncryptUtils.AESDecrypt(encryptedPassword, key).equals(rawPassword)){
-            isMatched = true;
-        }
-        return isMatched;
+        return EncryptUtils.AESDecrypt(encryptedPassword, key).equals(rawPassword);
     }
 
     public boolean authorizeRequest(@NonNull AuthorizeRequest request){

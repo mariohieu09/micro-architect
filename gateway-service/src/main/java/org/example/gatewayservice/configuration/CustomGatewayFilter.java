@@ -24,6 +24,8 @@ import static org.example.gatewayservice.constant.PermissionConstant.PERMISSION_
 @Component
 public class CustomGatewayFilter implements GlobalFilter, Ordered {
 
+    //TODO Encrypt the data
+
     private static final String TOKEN_PREFIX = "Bearer ";
 
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -46,11 +48,15 @@ public class CustomGatewayFilter implements GlobalFilter, Ordered {
                 List<String> permissions = jwtUtil.extractPermission(token);
                 //The specific permission to a resource endpoint
                 String definePermission = PERMISSION_CONSTANT.getPermissions().get(urlPath);
-                String url = UriComponentsBuilder.fromUriString(AUTHORIZE_URL_PATH)
-                        .queryParam("token", token)
-                        .queryParam("permission", definePermission)
-                        .toUriString();
-                ResponseEntity<Boolean> responseEntity = restTemplate.getForEntity(url, Boolean.class);
+//                String url = UriComponentsBuilder.fromUriString(AUTHORIZE_URL_PATH)
+//                        .queryParam("token", token)
+//                        .queryParam("permission", definePermission)
+//                        .toUriString();
+                AuthorizeRequest authorizeRequest = AuthorizeRequest.builder()
+                        .token(token)
+                        .checkingPermission(definePermission)
+                        .build();
+                ResponseEntity<Boolean> responseEntity = restTemplate.postForEntity(AUTHORIZE_URL_PATH, authorizeRequest,Boolean.class);
                 Boolean bool = responseEntity.getBody();
                 if(Boolean.FALSE.equals(bool)){
                     throw new ForbiddenException("User has no permission to access this resource!", new Date());

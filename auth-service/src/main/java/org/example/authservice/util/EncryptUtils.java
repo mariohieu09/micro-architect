@@ -1,5 +1,7 @@
 package org.example.authservice.util;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.SerializationUtils;
 
@@ -11,7 +13,8 @@ import java.util.Arrays;
 import java.util.Base64;
 
 @Component
-public class EncryptUtils {
+@Converter
+public class EncryptUtils implements AttributeConverter<String, String> {
 
     public static String MY_KEY = "trunghieu123";
 
@@ -110,5 +113,15 @@ public class EncryptUtils {
         c.init(Cipher.DECRYPT_MODE, PUBLIC_KEY);
         byte[] decryptOut = c.doFinal(Base64.getDecoder().decode(strToDecrypt));
         return SerializationUtils.deserialize(decryptOut);
+    }
+
+    @Override
+    public String convertToDatabaseColumn(String s) {
+        return AESEncrypt(s, null);
+    }
+
+    @Override
+    public String convertToEntityAttribute(String s) {
+        return AESDecrypt(s, null);
     }
 }

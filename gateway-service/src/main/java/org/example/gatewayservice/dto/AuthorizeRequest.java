@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class AuthorizeRequest {
     private String token;
 
-    private String permissionToCheck;
+    private String checkingPermission;
 }
