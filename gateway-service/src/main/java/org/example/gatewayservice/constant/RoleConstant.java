@@ -11,7 +11,7 @@ import java.util.Set;
 public enum RoleConstant {
 
     ADMIN(Set.of(
-                 "GET_USER","PUT_USER","GET_ALL_USER","DELETE_USER", "GET_PRODUCT"
+                 "GET_USER","PUT_USER","GET_ALL_USER","DELETE_USER", "GET_PRODUCT", "POST_USER"
             ))
     , USER(Set.of(
             "GET_PRODUCT"

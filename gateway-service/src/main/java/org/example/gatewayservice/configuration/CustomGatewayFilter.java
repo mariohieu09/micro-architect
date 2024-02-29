@@ -1,6 +1,7 @@
 package org.example.gatewayservice.configuration;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.gatewayservice.dto.AuthorizeRequest;
 import org.example.gatewayservice.exception.ForbiddenException;
 import org.example.gatewayservice.exception.UnAuthorizeException;
@@ -22,6 +23,7 @@ import java.util.List;
 import static org.example.gatewayservice.constant.PermissionConstant.PERMISSION_CONSTANT;
 
 @Component
+@Slf4j
 public class CustomGatewayFilter implements GlobalFilter, Ordered {
 
     //TODO Encrypt the data
@@ -48,10 +50,6 @@ public class CustomGatewayFilter implements GlobalFilter, Ordered {
                 List<String> permissions = jwtUtil.extractPermission(token);
                 //The specific permission to a resource endpoint
                 String definePermission = PERMISSION_CONSTANT.getPermissions().get(urlPath);
-//                String url = UriComponentsBuilder.fromUriString(AUTHORIZE_URL_PATH)
-//                        .queryParam("token", token)
-//                        .queryParam("permission", definePermission)
-//                        .toUriString();
                 AuthorizeRequest authorizeRequest = AuthorizeRequest.builder()
                         .token(token)
                         .checkingPermission(definePermission)
@@ -59,9 +57,12 @@ public class CustomGatewayFilter implements GlobalFilter, Ordered {
                 ResponseEntity<Boolean> responseEntity = restTemplate.postForEntity(AUTHORIZE_URL_PATH, authorizeRequest,Boolean.class);
                 Boolean bool = responseEntity.getBody();
                 if(Boolean.FALSE.equals(bool)){
+                    log.info("User has no permission!");
                     throw new ForbiddenException("User has no permission to access this resource!", new Date());
                 }
+                log.info("{}", exchange.getRequest());
             }else{
+                log.info("Unauthorized!");
                 throw new UnAuthorizeException("Unauthorized!", new Date());
             }
         }

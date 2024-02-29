@@ -14,6 +14,7 @@ public enum PermissionConstant {
             "/api/user/put", "PUT_USER",
             "/api/user/get-all", "GET_ALL_USER",
             "/api/user/delete", "DELETE_USER",
+            "/api/user/post", "POST_USER",
             "/api/product", "GET_PRODUCT"
     ))
     ;
