@@ -15,6 +15,7 @@ import org.example.authservice.repository.RoleRepository;
 import org.example.authservice.repository.UserRepository;
 import org.example.authservice.util.EncryptUtils;
 import org.example.authservice.util.JwtUtils;
+import org.example.dto.UserRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,13 +37,16 @@ public class AuthService {
 
 
 
-    public ResponseDto register(RequestDto requestDto) throws Exception{
+    public ResponseDto register(UserRequest requestDto) throws Exception{
         Optional<User> userOptional = repository.getUserByUsername(requestDto.getUsername());
         if(userOptional.isPresent()) throw new UserNameExistedException("Username is exist!", new Date());
         User user = User
                 .builder()
                 .username(requestDto.getUsername())
                 .password(EncryptUtils.AESEncrypt(requestDto.getPassword(), requestDto.getPassword()))
+                .firstName(requestDto.getFirstName())
+                .lastName(requestDto.getLastName())
+                .email(requestDto.getEmail())
                 .extraPermission(Collections.emptySet())
                 .role(roleRepository.getRoleByName(USER.name()))
                 .build();
@@ -56,7 +60,7 @@ public class AuthService {
                 .build();
     }
 
-    public ResponseDto authenticate(RequestDto requestDto) throws Exception {
+    public ResponseDto authenticate(UserRequest requestDto) throws Exception {
         Optional<User> userOptional = repository.getUserByUsername(requestDto.getUsername());
         //Username not found!
         if(userOptional.isEmpty()) throw new UsernameNotFoundException("Username not found!", new Date());

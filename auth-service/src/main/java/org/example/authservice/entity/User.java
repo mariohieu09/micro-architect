@@ -28,4 +28,9 @@ public class User extends IndexableEntity{
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
 
+    private String firstName;
+
+    private String lastName;
+
+    private String email;
 }
