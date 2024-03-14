@@ -1,6 +1,7 @@
 package org.example.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.UserResponse;
 import org.example.userservice.dto.UserRequest;
 import org.example.userservice.entity.User;
 import org.example.userservice.service.UserService;
@@ -34,5 +35,9 @@ public class UserController {
         return "User:Delete";
     }
 
+    @GetMapping("/get-profile/{id}")
+    public UserResponse getMyProfile(@RequestHeader("Authorization") String bearer, @PathVariable Long id){
+        return userService.getMyProfile(bearer, id);
+    }
 
 }

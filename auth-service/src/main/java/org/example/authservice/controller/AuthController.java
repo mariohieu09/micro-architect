@@ -5,6 +5,7 @@ import org.example.authservice.dto.AuthorizeRequest;
 import org.example.authservice.dto.RequestDto;
 import org.example.authservice.dto.ResponseDto;
 import org.example.authservice.service.AuthService;
+import org.example.dto.UserRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,13 +16,13 @@ public class AuthController {
 
     private final AuthService authService;
     @PostMapping("/register")
-    public ResponseDto register(@RequestBody RequestDto requestDto) throws Exception{
+    public ResponseDto register(@RequestBody UserRequest requestDto) throws Exception{
 
         return authService.register(requestDto);
     }
 
     @PostMapping("/authenticate")
-    public ResponseDto authenticate(@RequestBody RequestDto requestDto) throws Exception {
+    public ResponseDto authenticate(@RequestBody UserRequest requestDto) throws Exception {
         return  authService.authenticate(requestDto);
     }
 
