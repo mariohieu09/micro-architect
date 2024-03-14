@@ -2,6 +2,7 @@ package org.example.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.userservice.dto.UserRequest;
+import org.example.userservice.entity.User;
 import org.example.userservice.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,5 +33,6 @@ public class UserController {
     public String deleteUser(){
         return "User:Delete";
     }
+
 
 }

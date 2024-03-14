@@ -19,7 +19,7 @@ public class UserService {
 
     private static final String URL_USER_REGISTRATION = "http://localhost:8080/api/auth/register";
 
-    public String createUser(UserRequest userRequest){
+    public String createUser(UserRequest userRequest) {
         ResponseEntity<String> response = restTemplate.postForEntity(URL_USER_REGISTRATION, userRequest, String.class);
         return response.getBody();
     }
