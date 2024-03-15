@@ -1,21 +1,14 @@
-package org.example.userservice.config;
+package org.example.authservice.config;
 
-import org.example.utils.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class AppConfig {
-
     @Bean
+
     public RestTemplate restTemplate(){
-
         return new RestTemplate();
-    }
-
-    @Bean
-    public JwtUtils jwtUtils(){
-        return new JwtUtils();
     }
 }

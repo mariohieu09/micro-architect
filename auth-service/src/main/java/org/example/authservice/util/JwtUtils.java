@@ -4,7 +4,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.example.authservice.entity.Permission;
+import org.example.authservice.entity.Role;
 import org.example.authservice.entity.User;
+import org.example.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +32,8 @@ public class JwtUtils {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(User userDetails){
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(User userDetails, Set<Permission> permissions, Role role){
+        return generateToken(new HashMap<>(), userDetails, permissions, role);
     }
     private Date extractExpiration(String token){
         return extractClaim(token, Claims::getExpiration);
@@ -45,13 +48,16 @@ public class JwtUtils {
     }
     public String generateToken(
             Map<String, Object> extraClaims,
-            User userDetails
+            User userDetails,
+            Set<Permission> permissions,
+            Role role
     ){
-        List<String> permissions = new ArrayList<>();
+        List<String> permissionString = new ArrayList<>(permissions.stream()
+                .map(Permission::getName)
+                .toList());
+        permissionString.add("ROLE_" + role.getName());
         Map<String, Object> rolesClaim = new HashMap<>();
-        userDetails.getRole().getPermissionSet().forEach(p -> permissions.add(p.getName()));
-        userDetails.getExtraPermission().forEach(p -> permissions.add(p.getName()));
-        rolesClaim.put("credential", permissions);
+        rolesClaim.put("credential", permissionString);
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())

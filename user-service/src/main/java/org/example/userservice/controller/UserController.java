@@ -1,9 +1,12 @@
 package org.example.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.RequestDto;
+import org.example.dto.UserRequest;
 import org.example.dto.UserResponse;
-import org.example.userservice.dto.UserRequest;
+import org.example.exception.UserNameExistedException;
 import org.example.userservice.entity.User;
+import org.example.userservice.service.IUserService;
 import org.example.userservice.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,18 +15,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-    @GetMapping("/get")
-    public String getUser(){
-        return "User:Get";
+    private final IUserService userService;
+    @GetMapping("/get/{id}")
+    public UserResponse getUser(@PathVariable Long id){
+        return userService.getUserById(id);
     }
-    @PostMapping("/post")
-    public String postUser(@RequestBody UserRequest userRequest){
+    @PostMapping("/register")
+    public User register(@RequestBody UserRequest userRequest) throws UserNameExistedException {
         return userService.createUser(userRequest);
     }
-    @PutMapping("/put")
-    public String putUser(){
-        return "User:Put";
+
+    @PostMapping("/login")
+    public User login(@RequestBody RequestDto userRequest) throws Exception {
+        return userService.checkUser(userRequest);
+    }
+    @PutMapping("/update")
+    public UserResponse update(@RequestBody UserRequest userRequest){
+        return userService.updateUser(userRequest);
     }
     @GetMapping("/get-all")
     public String getAllUser(){

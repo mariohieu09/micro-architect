@@ -15,9 +15,10 @@ public class AuthController {
 
 
     private final AuthService authService;
+
+
     @PostMapping("/register")
     public ResponseDto register(@RequestBody UserRequest requestDto) throws Exception{
-
         return authService.register(requestDto);
     }
 
@@ -38,5 +39,17 @@ public class AuthController {
     @PostMapping("/authorize")
     public boolean postAuthorizeRequest(@RequestBody AuthorizeRequest request){
         return authService.authorizeRequest(request);
+    }
+
+
+    @GetMapping("/getRole/{type}")
+    public String getRoleByName(@PathVariable String type, @RequestParam("value") String value) throws Exception {
+        return authService.getRole(type, value);
+    }
+
+
+    @GetMapping("/getCredential/{user_id}")
+    public String getCredentialByUserId(@PathVariable Long user_id) throws Exception {
+        return authService.getCredential(user_id);
     }
 }
