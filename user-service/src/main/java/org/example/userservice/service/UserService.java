@@ -29,9 +29,15 @@ public class UserService implements IUserService{
     private final static String USER_ROLE = "USER";
 
 
+    private final static String QUES = "?";
+
     private final static String SLASH = "/";
 
+    private final static String AND = "&";
+
     private final static String ROLE_TYPE_NAME = "type=name";
+
+    private final static String ROLE_VALUE_USER  = "value=USER";
 
 
 
@@ -42,7 +48,7 @@ public class UserService implements IUserService{
     public User createUser(UserRequest userRequest) throws UserNameExistedException {
         Optional<User> userOptional = userRepository.findUserByUsername(userRequest.getUsername());
         if(userOptional.isPresent()) throw new UserNameExistedException("Username is exist!", new Date());
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(URL_USER_REGISTRATION + SLASH + ROLE_TYPE_NAME, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(URL_USER_REGISTRATION + QUES + ROLE_TYPE_NAME + AND + ROLE_VALUE_USER, String.class);
         String role = responseEntity.getBody();
         User user = User
                 .builder()
@@ -53,7 +59,9 @@ public class UserService implements IUserService{
                 .email(userRequest.getEmail())
                 .role(role)
                 .build();
-        return userRepository.save(user);
+         userRepository.save(user);
+         user.setPassword(userRequest.getPassword());
+         return user;
     }
 
     @Override
@@ -73,10 +81,10 @@ public class UserService implements IUserService{
         if(userOptional.isEmpty()) throw new Exception("Can't find user");
         User user = userOptional.get();
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(URL_USER_GET_CREDENTIAL + SLASH + user.getId(), String.class);
-        String encryptedAesKey = responseEntity.getBody();
-        String decryptedAesKey = EncryptUtils.AESDecrypt(encryptedAesKey, null);
+        String aesKey = responseEntity.getBody();
         String rawPassword = userRequest.getPassword();
-        if(!rawPassword.equals(EncryptUtils.AESDecrypt(rawPassword, decryptedAesKey))){
+        String decryptedPassword = EncryptUtils.AESDecrypt(user.getPassword(), aesKey);
+        if(!rawPassword.equals(decryptedPassword)){
             throw new Exception("Bad Credential!");
         }
         return user;

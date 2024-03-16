@@ -14,7 +14,13 @@ public class AuthorizeRequest {
      * This is the token gateway sends
      */
 
-    private String token;
+    private String accessToken;
+
+    private String refreshToken;
+
+    private String token_id;
+
+
 
 
     /**

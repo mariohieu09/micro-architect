@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.authservice.dto.AuthorizeRequest;
 import org.example.authservice.dto.RequestDto;
 import org.example.authservice.dto.ResponseDto;
+import org.example.authservice.exception.TokenExpiredToken;
 import org.example.authservice.service.AuthService;
 import org.example.dto.UserRequest;
 import org.springframework.web.bind.annotation.*;
@@ -26,25 +27,25 @@ public class AuthController {
     public ResponseDto authenticate(@RequestBody UserRequest requestDto) throws Exception {
         return  authService.authenticate(requestDto);
     }
-
+    @Deprecated
     @GetMapping("/authorize")
-    public boolean getAuthorizeRequest(@RequestParam("token") String token, @RequestParam("permission") String permission){
+    public boolean getAuthorizeRequest(@RequestParam("token") String token, @RequestParam("permission") String permission) throws TokenExpiredToken {
         AuthorizeRequest authorizeRequest =  AuthorizeRequest.builder()
-                .token(token)
+                .accessToken(token)
                 .checkingPermission(permission)
                 .build();
         return authService.authorizeRequest(authorizeRequest);
     }
 
     @PostMapping("/authorize")
-    public boolean postAuthorizeRequest(@RequestBody AuthorizeRequest request){
+    public boolean postAuthorizeRequest(@RequestBody AuthorizeRequest request) throws TokenExpiredToken {
         return authService.authorizeRequest(request);
     }
 
 
-    @GetMapping("/getRole/{type}")
-    public String getRoleByName(@PathVariable String type, @RequestParam("value") String value) throws Exception {
-        return authService.getRole(type, value);
+    @GetMapping("/getRole")
+    public String getRoleByName(@RequestParam("type") String type, @RequestParam("value") String value) throws Exception {
+        return authService.getRole(type ,value);
     }
 
 

@@ -7,7 +7,6 @@ import org.example.dto.UserResponse;
 import org.example.exception.UserNameExistedException;
 import org.example.userservice.entity.User;
 import org.example.userservice.service.IUserService;
-import org.example.userservice.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

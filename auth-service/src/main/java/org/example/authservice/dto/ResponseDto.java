@@ -11,5 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResponseDto {
 
-    private String encryptData;
+    private String accessToken;
+
+    private String refreshToken;
+
+    private String tokenId;
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.authservice.dto.AuthorizeRequest;
 import org.example.authservice.dto.ResponseDto;
 import org.example.authservice.entity.*;
+import org.example.authservice.exception.TokenExpiredToken;
 import org.example.authservice.repository.CredentialRepository;
 import org.example.authservice.repository.RoleRepository;
 import org.example.authservice.util.EncryptUtils;
@@ -57,8 +58,13 @@ public class AuthService {
         credentialRepository.save(credential);
         Role userRole = roleRepository.getRoleByName(USER.name());
         Set<Permission> permissions = userRole.getPermissionSet();
+        String accessToken = jwtUtils.generateToken(user, permissions, userRole);
+        String refreshToken = jwtUtils.generateRefreshToken(accessToken);
+        String tokenId = jwtUtils.getTokenId(accessToken);
         return ResponseDto.builder()
-                .encryptData(jwtUtils.generateToken(user, permissions, userRole))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenId(tokenId)
                 .build();
     }
 //TODO
@@ -67,8 +73,13 @@ public class AuthService {
         User user = responseEntity.getBody();
         assert user != null;
         Role role = roleRepository.getRoleByName(user.getRole());
+        String accessToken = jwtUtils.generateToken(user, role.getPermissionSet(), role);
+        String refreshToken = jwtUtils.generateRefreshToken(accessToken);
+        String tokenId = jwtUtils.getTokenId(accessToken);
         return ResponseDto.builder()
-                .encryptData(jwtUtils.generateToken(user, role.getPermissionSet(), role))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenId(tokenId)
                 .build();
     }
 
@@ -77,9 +88,11 @@ public class AuthService {
         return EncryptUtils.AESDecrypt(encryptedPassword, key).equals(rawPassword);
     }
 
-    public boolean authorizeRequest(@NonNull AuthorizeRequest request){
+    public boolean authorizeRequest(@NonNull AuthorizeRequest request) throws TokenExpiredToken {
         boolean isAuthorize = false;
-        List<String> permissionList = jwtUtils.extractPermission(request.getToken());
+        boolean isTokenAlive = jwtUtils.isTokenExpired(request.getRefreshToken());
+        if(!isTokenAlive) throw new TokenExpiredToken();
+        List<String> permissionList = jwtUtils.extractPermission(request.getAccessToken());
         if(permissionList.contains(request.getCheckingPermission())){
             isAuthorize = true;
         }
@@ -102,5 +115,7 @@ public class AuthService {
         }
         return credentialOptional.get().getAesKey();
     }
+
+
 }
 
